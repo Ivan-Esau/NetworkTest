@@ -18,6 +18,7 @@ public class GameLogic {
     public void startServer(int port) throws IOException {
         server = new GameServer();
         server.start(port);
+        player = new Player("ServerPlayer"); // Initialize player on server side
     }
 
     public void startClient(String ip, int port, String playerName) throws IOException {

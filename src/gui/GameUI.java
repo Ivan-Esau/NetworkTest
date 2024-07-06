@@ -58,6 +58,7 @@ public class GameUI {
                     logic.startClient(ip, 12345, playerName);
                     JOptionPane.showMessageDialog(null, "Connected to server!");
                     logic.sendRequest("Request to play a game");
+                    startGame(); // Start the game on client side as well
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
