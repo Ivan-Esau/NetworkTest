@@ -9,6 +9,7 @@ import java.io.IOException;
 
 public class GameUI {
     private GameLogic logic;
+    private TicTacToeBoard boardUI;
 
     public GameUI(GameLogic logic) {
         this.logic = logic;
@@ -76,6 +77,7 @@ public class GameUI {
                     int response = JOptionPane.showConfirmDialog(null, request + "\nDo you accept?", "Game Request", JOptionPane.YES_NO_OPTION);
                     if (response == JOptionPane.YES_OPTION) {
                         logic.sendResponse("Accepted");
+                        startGame();
                     } else {
                         logic.sendResponse("Declined");
                     }
@@ -84,5 +86,16 @@ public class GameUI {
                 }
             }
         });
+    }
+
+    private void startGame() {
+        JFrame gameFrame = new JFrame("Tic Tac Toe");
+        gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        gameFrame.setSize(300, 300);
+
+        boardUI = new TicTacToeBoard(logic);
+        gameFrame.add(boardUI);
+
+        gameFrame.setVisible(true);
     }
 }
