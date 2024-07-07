@@ -52,6 +52,7 @@ public class TicTacToeBoard extends JPanel {
                                     logic.changePlayer();
                                     try {
                                         logic.sendRequest(row + "," + col);
+                                        logic.sendResponse("TURN_CHANGE"); // Inform the opponent about the turn change
                                         System.out.println("Sent move: " + row + "," + col);
                                         disableBoard();
                                         new Thread(createWaitForOpponentMoveRunnable()).start(); // Wait for the opponent's move in a new thread
@@ -110,6 +111,8 @@ public class TicTacToeBoard extends JPanel {
                     System.out.println("Received move: " + response);
                     if (response.equals("START_GAME")) {
                         SwingUtilities.invokeLater(this::enableBoard);
+                    } else if (response.equals("TURN_CHANGE")) {
+                        SwingUtilities.invokeLater(this::enableBoard);
                     } else {
                         String[] move = response.split(",");
                         int opponentRow = Integer.parseInt(move[0]);
@@ -117,7 +120,7 @@ public class TicTacToeBoard extends JPanel {
                         System.out.println("Opponent moved to (" + opponentRow + ", " + opponentCol + ")");
                         SwingUtilities.invokeLater(() -> {
                             updateBoard(opponentRow, opponentCol);
-                            enableBoard();
+                            disableBoard(); // Disable the board after processing the opponent's move
                         });
                         break; // Exit loop after handling the opponent's move
                     }
