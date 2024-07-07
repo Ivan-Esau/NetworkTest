@@ -90,7 +90,7 @@ public class GameLogic {
 
     private boolean checkRows() {
         for (int i = 0; i < 3; i++) {
-            if (checkRowCol(board[i][0], board[i][1], board[i][2])) {
+            if (board[i][0] != '-' && board[i][0] == board[i][1] && board[i][1] == board[i][2] && (board[i][0] == 'X' || board[i][0] == 'O')) {
                 return true;
             }
         }
@@ -99,7 +99,7 @@ public class GameLogic {
 
     private boolean checkColumns() {
         for (int i = 0; i < 3; i++) {
-            if (checkRowCol(board[0][i], board[1][i], board[2][i])) {
+            if (board[0][i] != '-' && board[0][i] == board[1][i] && board[1][i] == board[2][i] && (board[0][i] == 'X' || board[0][i] == 'O')) {
                 return true;
             }
         }
@@ -107,11 +107,13 @@ public class GameLogic {
     }
 
     private boolean checkDiagonals() {
-        return ((checkRowCol(board[0][0], board[1][1], board[2][2])) || (checkRowCol(board[0][2], board[1][1], board[2][0])));
-    }
-
-    private boolean checkRowCol(char c1, char c2, char c3) {
-        return ((c1 != '-') && (c1 == c2) && (c2 == c3));
+        if (board[0][0] != '-' && board[0][0] == board[1][1] && board[1][1] == board[2][2] && (board[0][0] == 'X' || board[0][0] == 'O')) {
+            return true;
+        }
+        if (board[0][2] != '-' && board[0][2] == board[1][1] && board[1][1] == board[2][0] && (board[0][2] == 'X' || board[0][2] == 'O')) {
+            return true;
+        }
+        return false;
     }
 
     public void changePlayer() {
