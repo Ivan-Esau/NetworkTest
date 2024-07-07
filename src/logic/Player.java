@@ -10,12 +10,8 @@ public class Player extends GameClient {
         this.playerName = playerName;
     }
 
-    public String getPlayerName() {
-        return playerName;
-    }
-
     public void sendPlayerRequest(String request) {
-        sendMessage(playerName + ": " + request);
+        sendMessage(request);
     }
 
     public String receivePlayerResponse() throws IOException {

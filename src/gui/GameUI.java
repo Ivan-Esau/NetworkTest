@@ -57,13 +57,16 @@ public class GameUI {
                 String playerName = nameText.getText();
                 try {
                     logic.startClient(ip, 12345, playerName);
+                    System.out.println("Client connected to server at " + ip);
                     JOptionPane.showMessageDialog(null, "Connected to server!");
                     logic.sendRequest("Request to play a game");
                     String response = logic.receiveResponse();
                     if (response.equals("Accepted")) {
+                        System.out.println("Game request accepted by server");
                         JOptionPane.showMessageDialog(null, "Game request accepted. Starting game...");
                         startGame();
                     } else {
+                        System.out.println("Game request declined by server");
                         JOptionPane.showMessageDialog(null, "Game request declined.");
                     }
                 } catch (IOException ioException) {
@@ -81,17 +84,21 @@ public class GameUI {
                 try {
                     isServer = true;
                     logic.startServer(12345);
+                    System.out.println("Server started on port 12345");
                     JOptionPane.showMessageDialog(null, "Server started. Waiting for connection...");
                     new Thread(() -> {
                         try {
                             String request = logic.receiveRequest();
+                            System.out.println("Received game request from client: " + request);
                             int response = JOptionPane.showConfirmDialog(null, request + "\nDo you accept?", "Game Request", JOptionPane.YES_NO_OPTION);
                             if (response == JOptionPane.YES_OPTION) {
                                 logic.sendResponse("Accepted");
+                                System.out.println("Accepted game request from client");
                                 SwingUtilities.invokeLater(() -> startGame());
                                 logic.sendResponse("START_GAME");
                             } else {
                                 logic.sendResponse("Declined");
+                                System.out.println("Declined game request from client");
                             }
                         } catch (IOException ioException) {
                             ioException.printStackTrace();

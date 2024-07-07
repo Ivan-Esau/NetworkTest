@@ -19,7 +19,7 @@ public class GameLogic {
     public void startServer(int port) throws IOException {
         server = new GameServer();
         server.start(port);
-        serverPlayer = new Player("ServerPlayer"); // Initialize player on server side
+        serverPlayer = new Player("ServerPlayer");
         serverPlayer.startConnection("localhost", port);
     }
 
@@ -28,11 +28,11 @@ public class GameLogic {
         clientPlayer.startConnection(ip, port);
     }
 
-    public void sendRequest(String request) {
-        if (serverPlayer != null) {
-            serverPlayer.sendPlayerRequest(request);
-        } else if (clientPlayer != null) {
+    public void sendRequest(String request) throws IOException {
+        if (clientPlayer != null) {
             clientPlayer.sendPlayerRequest(request);
+        } else if (serverPlayer != null) {
+            server.sendMessage(request);
         }
     }
 
@@ -40,19 +40,19 @@ public class GameLogic {
         return server.receiveMessage();
     }
 
-    public void sendResponse(String response) {
-        if (serverPlayer != null) {
-            serverPlayer.sendPlayerRequest(response);
-        } else if (clientPlayer != null) {
+    public void sendResponse(String response) throws IOException {
+        if (clientPlayer != null) {
             clientPlayer.sendPlayerRequest(response);
+        } else if (serverPlayer != null) {
+            server.sendMessage(response);
         }
     }
 
     public String receiveResponse() throws IOException {
-        if (serverPlayer != null) {
-            return server.receiveMessage();
-        } else {
+        if (clientPlayer != null) {
             return clientPlayer.receivePlayerResponse();
+        } else {
+            return server.receiveMessage();
         }
     }
 
