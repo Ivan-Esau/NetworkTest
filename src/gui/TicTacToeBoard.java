@@ -106,15 +106,19 @@ public class TicTacToeBoard extends JPanel {
                         return;
                     }
                     System.out.println("Received move: " + response);
-                    String[] move = response.split(",");
-                    int opponentRow = Integer.parseInt(move[0]);
-                    int opponentCol = Integer.parseInt(move[1]);
-                    System.out.println("Opponent moved to (" + opponentRow + ", " + opponentCol + ")");
-                    SwingUtilities.invokeLater(() -> {
-                        updateBoard(opponentRow, opponentCol);
-                        enableBoard();
-                    });
-                    break; // Exit loop after handling the opponent's move
+                    if (response.equals("START_GAME")) {
+                        SwingUtilities.invokeLater(this::enableBoard);
+                    } else {
+                        String[] move = response.split(",");
+                        int opponentRow = Integer.parseInt(move[0]);
+                        int opponentCol = Integer.parseInt(move[1]);
+                        System.out.println("Opponent moved to (" + opponentRow + ", " + opponentCol + ")");
+                        SwingUtilities.invokeLater(() -> {
+                            updateBoard(opponentRow, opponentCol);
+                            enableBoard();
+                        });
+                        break; // Exit loop after handling the opponent's move
+                    }
                 }
             } catch (IOException e) {
                 System.out.println("Error receiving move: " + e.getMessage());
