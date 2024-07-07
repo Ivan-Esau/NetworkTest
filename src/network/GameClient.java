@@ -38,4 +38,14 @@ public class GameClient {
         clientSocket.close();
         System.out.println("Client disconnected");
     }
+
+    public String getMyIP() {
+        try {
+            InetAddress localhost = InetAddress.getLocalHost();
+            return localhost.getHostAddress();
+        } catch (UnknownHostException ex) {
+            ex.printStackTrace();
+            return "IP-Adresse konnte nicht ermittelt werden.";
+        }
+    }
 }
