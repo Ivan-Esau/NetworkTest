@@ -108,3 +108,12 @@ public class TicTacToeBoard extends JPanel {
         buttons[row][col].setText(String.valueOf(logic.getCurrentPlayer()));
         if (logic.checkForWin()) {
             JOptionPane.showMessageDialog(null, "Player " + logic.getCurrentPlayer() + " wins!");
+            resetBoard();
+        } else if (logic.isBoardFull()) {
+            JOptionPane.showMessageDialog(null, "The game is a tie!");
+            resetBoard();
+        } else {
+            logic.changePlayer();
+        }
+    }
+}
