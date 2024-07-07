@@ -1,7 +1,6 @@
 package gui;
 
-import logic.GameBoard;
-import logic.GameNetwork;
+import logic.GameLogic;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,17 +9,15 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 public class TicTacToeBoard extends JPanel {
-    private GameBoard gameBoard;
-    private GameNetwork gameNetwork;
+    private GameLogic logic;
     private JButton[][] buttons;
     private boolean isMyTurn;
     private char mySymbol;
     private char opponentSymbol;
     private GameUI parentUI; // Reference to the parent UI
 
-    public TicTacToeBoard(GameBoard gameBoard, GameNetwork gameNetwork, boolean isServer, GameUI parentUI) {
-        this.gameBoard = gameBoard;
-        this.gameNetwork = gameNetwork;
+    public TicTacToeBoard(GameLogic logic, boolean isServer, GameUI parentUI) {
+        this.logic = logic;
         this.isMyTurn = isServer; // Initialize the turn based on whether this is the server or client
         this.mySymbol = isServer ? 'X' : 'O'; // Server is always 'X', Client is always 'O'
         this.opponentSymbol = isServer ? 'O' : 'X'; // Opponent symbol is opposite
@@ -44,25 +41,25 @@ public class TicTacToeBoard extends JPanel {
                 final int col = j;
                 buttons[i][j].addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        if (isMyTurn && gameBoard.placeMark(row, col)) { // Ensure correct player's turn and valid move
+                        if (isMyTurn && logic.placeMark(row, col)) { // Ensure correct player's turn and valid move
                             buttons[row][col].setText(String.valueOf(mySymbol));
                             try {
-                                gameNetwork.sendRequest(row + "," + col + "," + mySymbol);
+                                logic.sendRequest(row + "," + col + "," + mySymbol);
                                 System.out.println("Sent move: " + row + "," + col + "," + mySymbol);
                             } catch (IOException ioException) {
                                 ioException.printStackTrace();
                             }
 
-                            if (gameBoard.checkForWin()) {
+                            if (logic.checkForWin()) {
                                 System.out.println("Player " + mySymbol + " wins!");
                                 JOptionPane.showMessageDialog(null, "Player " + mySymbol + " wins!");
                                 resetBoard();
-                            } else if (gameBoard.isBoardFull()) {
+                            } else if (logic.isBoardFull()) {
                                 System.out.println("The game is a tie!");
                                 JOptionPane.showMessageDialog(null, "The game is a tie!");
                                 resetBoard();
                             } else {
-                                gameBoard.changePlayer();
+                                logic.changePlayer();
                                 disableBoard();
                                 isMyTurn = false; // Change turn after making a move
                                 new Thread(createWaitForOpponentMoveRunnable()).start(); // Wait for the opponent's move in a new thread
@@ -92,7 +89,7 @@ public class TicTacToeBoard extends JPanel {
     }
 
     private void resetBoard() {
-        gameBoard.initializeBoard();
+        logic.initializeBoard();
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 buttons[i][j].setText("-");
@@ -105,7 +102,7 @@ public class TicTacToeBoard extends JPanel {
         return () -> {
             try {
                 while (true) {
-                    String response = gameNetwork.receiveResponse();
+                    String response = logic.receiveResponse();
                     if (response == null) {
                         System.out.println("Connection lost or server closed. Returning to menu...");
                         SwingUtilities.invokeLater(() -> {
@@ -125,16 +122,16 @@ public class TicTacToeBoard extends JPanel {
                         System.out.println("Opponent moved to (" + opponentRow + ", " + opponentCol + ") with symbol " + opponentSymbol);
                         SwingUtilities.invokeLater(() -> {
                             updateBoard(opponentRow, opponentCol, opponentSymbol);
-                            if (gameBoard.checkForWin()) {
+                            if (logic.checkForWin()) {
                                 System.out.println("Player " + opponentSymbol + " wins!");
                                 JOptionPane.showMessageDialog(null, "Player " + opponentSymbol + " wins!");
                                 resetBoard();
-                            } else if (gameBoard.isBoardFull()) {
+                            } else if (logic.isBoardFull()) {
                                 System.out.println("The game is a tie!");
                                 JOptionPane.showMessageDialog(null, "The game is a tie!");
                                 resetBoard();
                             } else {
-                                gameBoard.changePlayer();
+                                logic.changePlayer();
                                 isMyTurn = true; // Change turn after receiving opponent's move
                                 enableBoard(); // Enable the board for the player's turn
                             }
@@ -154,8 +151,7 @@ public class TicTacToeBoard extends JPanel {
 
     // Method to update the board with the opponent's move
     public void updateBoard(int row, int col, char symbol) {
-        gameBoard.setCurrentPlayer(symbol);
-        gameBoard.placeMark(row, col);
+        logic.handleOpponentMove(row, col, symbol);
         buttons[row][col].setText(String.valueOf(symbol));
     }
 }

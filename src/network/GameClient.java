@@ -7,19 +7,13 @@ public class GameClient {
     protected Socket clientSocket;
     protected PrintWriter out;
     protected BufferedReader in;
-    private String serverIP;
 
-    // Constructor that only takes the IP address
-    public GameClient(String ip) {
-        this.serverIP = ip;
-    }
-
-    public void startConnection(int port) throws IOException {
+    public void startConnection(String ip, int port) throws IOException {
         System.out.println("Connecting to server...");
-        clientSocket = new Socket(serverIP, port);
+        clientSocket = new Socket(ip, port);
         out = new PrintWriter(clientSocket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        System.out.println("Connected to server at " + serverIP);
+        System.out.println("Connected to server");
     }
 
     public void sendMessage(String message) {
@@ -38,15 +32,5 @@ public class GameClient {
         out.close();
         clientSocket.close();
         System.out.println("Client disconnected");
-    }
-
-    public String getMyIP() {
-        try {
-            InetAddress localhost = InetAddress.getLocalHost();
-            return localhost.getHostAddress();
-        } catch (UnknownHostException ex) {
-            ex.printStackTrace();
-            return "IP-Adresse konnte nicht ermittelt werden.";
-        }
     }
 }

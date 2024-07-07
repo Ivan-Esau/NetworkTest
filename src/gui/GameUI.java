@@ -1,7 +1,6 @@
 package gui;
 
-import logic.GameBoard;
-import logic.GameNetwork;
+import logic.GameLogic;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -9,14 +8,12 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 public class GameUI {
-    private GameBoard gameBoard;
-    private GameNetwork gameNetwork;
+    private GameLogic logic;
     private TicTacToeBoard boardUI;
     private boolean isServer;
 
-    public GameUI(GameBoard gameBoard, GameNetwork gameNetwork) {
-        this.gameBoard = gameBoard;
-        this.gameNetwork = gameNetwork;
+    public GameUI(GameLogic logic) {
+        this.logic = logic;
     }
 
     public void createAndShowGUI() {
@@ -59,11 +56,11 @@ public class GameUI {
                 String ip = ipText.getText();
                 String playerName = nameText.getText();
                 try {
-                    gameNetwork.startClient(ip, playerName);
+                    logic.startClient(ip, 12345, playerName);
                     System.out.println("Client connected to server at " + ip);
                     JOptionPane.showMessageDialog(null, "Connected to server!");
-                    gameNetwork.sendRequest("Request to play a game");
-                    String response = gameNetwork.receiveResponse();
+                    logic.sendRequest("Request to play a game");
+                    String response = logic.receiveResponse();
                     if (response.equals("Accepted")) {
                         System.out.println("Game request accepted by server");
                         JOptionPane.showMessageDialog(null, "Game request accepted. Starting game...");
@@ -78,28 +75,40 @@ public class GameUI {
             }
         });
 
-        // Start a thread to listen for game requests if this is the server
-        if (isServer) {
-            new Thread(() -> {
+        JButton startServerButton = new JButton("Start Server");
+        startServerButton.setBounds(10, 110, 150, 25);
+        panel.add(startServerButton);
+
+        startServerButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
                 try {
-                    while (true) {
-                        String request = gameNetwork.receiveRequest();
-                        System.out.println("Received game request from client: " + request);
-                        int response = JOptionPane.showConfirmDialog(null, request + "\nDo you accept?", "Game Request", JOptionPane.YES_NO_OPTION);
-                        if (response == JOptionPane.YES_OPTION) {
-                            gameNetwork.sendResponse("Accepted");
-                            System.out.println("Accepted game request from client");
-                            SwingUtilities.invokeLater(this::startGame);
-                        } else {
-                            gameNetwork.sendResponse("Declined");
-                            System.out.println("Declined game request from client");
+                    isServer = true;
+                    logic.startServer(12345);
+                    System.out.println("Server started on port 12345");
+                    JOptionPane.showMessageDialog(null, "Server started. Waiting for connection...");
+                    new Thread(() -> {
+                        try {
+                            String request = logic.receiveRequest();
+                            System.out.println("Received game request from client: " + request);
+                            int response = JOptionPane.showConfirmDialog(null, request + "\nDo you accept?", "Game Request", JOptionPane.YES_NO_OPTION);
+                            if (response == JOptionPane.YES_OPTION) {
+                                logic.sendResponse("Accepted");
+                                System.out.println("Accepted game request from client");
+                                SwingUtilities.invokeLater(() -> startGame());
+                                logic.sendResponse("START_GAME");
+                            } else {
+                                logic.sendResponse("Declined");
+                                System.out.println("Declined game request from client");
+                            }
+                        } catch (IOException ioException) {
+                            ioException.printStackTrace();
                         }
-                    }
+                    }).start();
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
-            }).start();
-        }
+            }
+        });
     }
 
     private void startGame() {
@@ -107,7 +116,7 @@ public class GameUI {
         gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         gameFrame.setSize(300, 300);
 
-        boardUI = new TicTacToeBoard(gameBoard, gameNetwork, isServer, this); // Pass the GameUI instance to TicTacToeBoard
+        boardUI = new TicTacToeBoard(logic, isServer, this); // Pass the GameUI instance to TicTacToeBoard
         gameFrame.add(boardUI);
 
         gameFrame.setVisible(true);
