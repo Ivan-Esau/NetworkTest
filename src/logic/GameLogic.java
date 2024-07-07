@@ -148,24 +148,4 @@ public class GameLogic {
             changePlayer();
         }
     }
-
-    // Method to run the game loop
-    public void runGameLoop(boolean isServer) {
-        while (true) {
-            if ((isServer && currentPlayer == 'X') || (!isServer && currentPlayer == 'O')) {
-                // Wait for opponent's move
-                try {
-                    String response = receiveResponse();
-                    if (response != null) {
-                        String[] move = response.split(",");
-                        int row = Integer.parseInt(move[0]);
-                        int col = Integer.parseInt(move[1]);
-                        handleOpponentMove(row, col);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
 }

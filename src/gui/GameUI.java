@@ -120,9 +120,6 @@ public class GameUI {
         gameFrame.add(boardUI);
 
         gameFrame.setVisible(true);
-
-        // Start the game loop in a new thread
-        new Thread(() -> logic.runGameLoop(isServer)).start();
     }
 
     // Method to return to the main menu
