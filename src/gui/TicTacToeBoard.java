@@ -20,6 +20,7 @@ public class TicTacToeBoard extends JPanel {
         initializeButtons();
         if (!isServer) {
             disableBoard();
+            waitForOpponentMove(); // Start waiting for the server's first move
         }
     }
 
@@ -85,13 +86,17 @@ public class TicTacToeBoard extends JPanel {
     private void waitForOpponentMove() {
         try {
             String response = logic.receiveResponse();
-            String[] move = response.split(",");
-            int opponentRow = Integer.parseInt(move[0]);
-            int opponentCol = Integer.parseInt(move[1]);
-            SwingUtilities.invokeLater(() -> {
-                updateBoard(opponentRow, opponentCol);
-                enableBoard();
-            });
+            if (response.equals("START_GAME")) {
+                SwingUtilities.invokeLater(this::enableBoard); // Enable board for client after game starts
+            } else {
+                String[] move = response.split(",");
+                int opponentRow = Integer.parseInt(move[0]);
+                int opponentCol = Integer.parseInt(move[1]);
+                SwingUtilities.invokeLater(() -> {
+                    updateBoard(opponentRow, opponentCol);
+                    enableBoard();
+                });
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -103,12 +108,3 @@ public class TicTacToeBoard extends JPanel {
         buttons[row][col].setText(String.valueOf(logic.getCurrentPlayer()));
         if (logic.checkForWin()) {
             JOptionPane.showMessageDialog(null, "Player " + logic.getCurrentPlayer() + " wins!");
-            resetBoard();
-        } else if (logic.isBoardFull()) {
-            JOptionPane.showMessageDialog(null, "The game is a tie!");
-            resetBoard();
-        } else {
-            logic.changePlayer();
-        }
-    }
-}
