@@ -23,6 +23,8 @@ public class TicTacToeBoard extends JPanel {
         if (!isServer) {
             disableBoard();
             new Thread(createWaitForOpponentMoveRunnable()).start(); // Start waiting for the opponent's first move
+        } else {
+            enableBoard(); // Enable the board for the server to start the game
         }
     }
 
