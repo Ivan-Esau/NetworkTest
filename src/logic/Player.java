@@ -6,7 +6,8 @@ import java.io.IOException;
 public class Player extends GameClient {
     private String playerName;
 
-    public Player(String playerName) {
+    public Player(String playerName, String ip) {
+        super(ip);
         this.playerName = playerName;
     }
 
