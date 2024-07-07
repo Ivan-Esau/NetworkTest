@@ -122,4 +122,8 @@ public class GameLogic {
     public char[][] getBoard() {
         return board;
     }
+
+    public boolean isCurrentPlayerX() {
+        return currentPlayer == 'X';
+    }
 }

@@ -10,6 +10,7 @@ import java.io.IOException;
 public class GameUI {
     private GameLogic logic;
     private TicTacToeBoard boardUI;
+    private boolean isServer;
 
     public GameUI(GameLogic logic) {
         this.logic = logic;
@@ -58,7 +59,13 @@ public class GameUI {
                     logic.startClient(ip, 12345, playerName);
                     JOptionPane.showMessageDialog(null, "Connected to server!");
                     logic.sendRequest("Request to play a game");
-                    startGame(); // Start the game on client side as well
+                    String response = logic.receiveResponse();
+                    if (response.equals("Accepted")) {
+                        JOptionPane.showMessageDialog(null, "Game request accepted. Starting game...");
+                        startGame();
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Game request declined.");
+                    }
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
@@ -72,6 +79,7 @@ public class GameUI {
         startServerButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
+                    isServer = true;
                     logic.startServer(12345);
                     JOptionPane.showMessageDialog(null, "Server started. Waiting for connection...");
                     String request = logic.receiveRequest();
@@ -94,7 +102,7 @@ public class GameUI {
         gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         gameFrame.setSize(300, 300);
 
-        boardUI = new TicTacToeBoard(logic);
+        boardUI = new TicTacToeBoard(logic, isServer);
         gameFrame.add(boardUI);
 
         gameFrame.setVisible(true);

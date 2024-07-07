@@ -11,11 +11,16 @@ import java.io.IOException;
 public class TicTacToeBoard extends JPanel {
     private GameLogic logic;
     private JButton[][] buttons;
+    private boolean isServer;
 
-    public TicTacToeBoard(GameLogic logic) {
+    public TicTacToeBoard(GameLogic logic, boolean isServer) {
         this.logic = logic;
+        this.isServer = isServer;
         setLayout(new GridLayout(3, 3));
         initializeButtons();
+        if (!isServer) {
+            disableBoard();
+        }
     }
 
     private void initializeButtons() {
@@ -39,12 +44,23 @@ public class TicTacToeBoard extends JPanel {
                                 logic.changePlayer();
                                 try {
                                     logic.sendRequest(row + "," + col);
+                                    disableBoard();
                                     String response = logic.receiveResponse();
+                                    enableBoard();
                                     String[] move = response.split(",");
                                     int opponentRow = Integer.parseInt(move[0]);
                                     int opponentCol = Integer.parseInt(move[1]);
                                     logic.placeMark(opponentRow, opponentCol);
                                     buttons[opponentRow][opponentCol].setText(String.valueOf(logic.getCurrentPlayer()));
+                                    if (logic.checkForWin()) {
+                                        JOptionPane.showMessageDialog(null, "Player " + logic.getCurrentPlayer() + " wins!");
+                                        resetBoard();
+                                    } else if (logic.isBoardFull()) {
+                                        JOptionPane.showMessageDialog(null, "The game is a tie!");
+                                        resetBoard();
+                                    } else {
+                                        logic.changePlayer();
+                                    }
                                 } catch (IOException ioException) {
                                     ioException.printStackTrace();
                                 }
@@ -53,6 +69,22 @@ public class TicTacToeBoard extends JPanel {
                     }
                 });
                 add(buttons[i][j]);
+            }
+        }
+    }
+
+    private void disableBoard() {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                buttons[i][j].setEnabled(false);
+            }
+        }
+    }
+
+    private void enableBoard() {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                buttons[i][j].setEnabled(true);
             }
         }
     }
