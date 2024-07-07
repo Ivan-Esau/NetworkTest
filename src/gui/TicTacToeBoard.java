@@ -20,7 +20,7 @@ public class TicTacToeBoard extends JPanel {
         initializeButtons();
         if (!isServer) {
             disableBoard();
-            new Thread(this::waitForOpponentMove).start(); // Start waiting for the server's first move
+            new Thread(() -> waitForOpponentMove()).start(); // Start waiting for the server's first move
         }
     }
 
@@ -48,6 +48,7 @@ public class TicTacToeBoard extends JPanel {
                                     logic.changePlayer();
                                     try {
                                         logic.sendRequest(row + "," + col);
+                                        System.out.println("Sent move: " + row + "," + col);
                                         disableBoard();
                                         new Thread(() -> waitForOpponentMove()).start(); // Wait for the opponent's move in a new thread
                                     } catch (IOException ioException) {
@@ -92,9 +93,10 @@ public class TicTacToeBoard extends JPanel {
     private void waitForOpponentMove() {
         try {
             String response = logic.receiveResponse();
+            System.out.println("Received move: " + response);
             if (response.equals("START_GAME")) {
                 System.out.println("Game started on client side");
-                SwingUtilities.invokeLater(this::enableBoard); // Enable board for client after game starts
+                SwingUtilities.invokeLater(() -> enableBoard()); // Enable board for client after game starts
             } else {
                 String[] move = response.split(",");
                 int opponentRow = Integer.parseInt(move[0]);
