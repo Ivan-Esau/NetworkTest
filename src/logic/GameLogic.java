@@ -16,16 +16,16 @@ public class GameLogic {
         initializeBoard();
     }
 
-    public void startServer(int port) throws IOException {
+    public void startServer() throws IOException {
         server = new GameServer();
-        server.start(port);
-        serverPlayer = new Player("ServerPlayer");
-        serverPlayer.startConnection("localhost", port);
+        server.start();
+        serverPlayer = new Player("ServerPlayer", "localhost");
+        serverPlayer.startConnection(12345);
     }
 
-    public void startClient(String ip, int port, String playerName) throws IOException {
-        clientPlayer = new Player(playerName);
-        clientPlayer.startConnection(ip, port);
+    public void startClient(String ip, String playerName) throws IOException {
+        clientPlayer = new Player(playerName, ip);
+        clientPlayer.startConnection(12345);
     }
 
     public void sendRequest(String request) throws IOException {

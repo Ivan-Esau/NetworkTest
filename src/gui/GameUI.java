@@ -56,7 +56,7 @@ public class GameUI {
                 String ip = ipText.getText();
                 String playerName = nameText.getText();
                 try {
-                    logic.startClient(ip, 12345, playerName);
+                    logic.startClient(ip, playerName);
                     System.out.println("Client connected to server at " + ip);
                     JOptionPane.showMessageDialog(null, "Connected to server!");
                     logic.sendRequest("Request to play a game");
@@ -83,7 +83,7 @@ public class GameUI {
             public void actionPerformed(ActionEvent e) {
                 try {
                     isServer = true;
-                    logic.startServer(12345);
+                    logic.startServer();
                     System.out.println("Server started on port 12345");
                     JOptionPane.showMessageDialog(null, "Server started. Waiting for connection...");
                     new Thread(() -> {

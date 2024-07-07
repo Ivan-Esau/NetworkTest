@@ -7,10 +7,15 @@ public class GameClient {
     protected Socket clientSocket;
     protected PrintWriter out;
     protected BufferedReader in;
+    private String serverAddress;
 
-    public void startConnection(String ip, int port) throws IOException {
+    public GameClient(String serverAddress) {
+        this.serverAddress = serverAddress; // Constructor with server address argument
+    }
+
+    public void startConnection(int port) throws IOException {
         System.out.println("Connecting to server...");
-        clientSocket = new Socket(ip, port);
+        clientSocket = new Socket(serverAddress, port);
         out = new PrintWriter(clientSocket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         System.out.println("Connected to server");

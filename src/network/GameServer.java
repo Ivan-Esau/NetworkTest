@@ -8,10 +8,15 @@ public class GameServer {
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
+    private static final int PORT = 12345; // Fixed port number
 
-    public void start(int port) throws IOException {
+    public GameServer() {
+        // Constructor with no arguments
+    }
+
+    public void start() throws IOException {
         System.out.println("Starting server...");
-        serverSocket = new ServerSocket(port);
+        serverSocket = new ServerSocket(PORT);
         clientSocket = serverSocket.accept();
         out = new PrintWriter(clientSocket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
