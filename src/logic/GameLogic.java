@@ -5,7 +5,8 @@ import java.io.IOException;
 
 public class GameLogic {
     private GameServer server;
-    private Player player;
+    private Player clientPlayer;
+    private Player serverPlayer;
     private char[][] board;
     private char currentPlayer;
 
@@ -18,16 +19,21 @@ public class GameLogic {
     public void startServer(int port) throws IOException {
         server = new GameServer();
         server.start(port);
-        player = new Player("ServerPlayer"); // Initialize player on server side
+        serverPlayer = new Player("ServerPlayer"); // Initialize player on server side
+        serverPlayer.startConnection("localhost", port);
     }
 
     public void startClient(String ip, int port, String playerName) throws IOException {
-        player = new Player(playerName);
-        player.startConnection(ip, port);
+        clientPlayer = new Player(playerName);
+        clientPlayer.startConnection(ip, port);
     }
 
     public void sendRequest(String request) {
-        player.sendPlayerRequest(request);
+        if (serverPlayer != null) {
+            serverPlayer.sendPlayerRequest(request);
+        } else if (clientPlayer != null) {
+            clientPlayer.sendPlayerRequest(request);
+        }
     }
 
     public String receiveRequest() throws IOException {
@@ -35,19 +41,28 @@ public class GameLogic {
     }
 
     public void sendResponse(String response) {
-        server.sendMessage(response);
+        if (serverPlayer != null) {
+            serverPlayer.sendPlayerRequest(response);
+        } else if (clientPlayer != null) {
+            clientPlayer.sendPlayerRequest(response);
+        }
     }
 
     public String receiveResponse() throws IOException {
-        return player.receivePlayerResponse();
+        if (serverPlayer != null) {
+            return server.receiveMessage();
+        } else {
+            return clientPlayer.receivePlayerResponse();
+        }
     }
 
     public void stopServer() throws IOException {
         server.stop();
+        serverPlayer.stopConnection();
     }
 
     public void stopClient() throws IOException {
-        player.stopConnection();
+        clientPlayer.stopConnection();
     }
 
     public void initializeBoard() {
