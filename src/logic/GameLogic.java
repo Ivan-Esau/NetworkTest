@@ -142,10 +142,15 @@ public class GameLogic {
         return currentPlayer == 'X';
     }
 
+    // New method to set the current player explicitly
+    public void setCurrentPlayer(char player) {
+        currentPlayer = player;
+    }
+
     // New method to handle opponent's move
-    public void handleOpponentMove(int row, int col) {
-        if (placeMark(row, col)) {
-            changePlayer();
-        }
+    public void handleOpponentMove(int row, int col, char player) {
+        setCurrentPlayer(player);
+        placeMark(row, col);
+        changePlayer();
     }
 }
