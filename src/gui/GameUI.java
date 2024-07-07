@@ -63,6 +63,7 @@ public class GameUI {
                     if (response.equals("Accepted")) {
                         JOptionPane.showMessageDialog(null, "Game request accepted. Starting game...");
                         startGame();
+                        waitForOpponentMove(); // Wait for the server to make the first move
                     } else {
                         JOptionPane.showMessageDialog(null, "Game request declined.");
                     }
@@ -106,5 +107,22 @@ public class GameUI {
         gameFrame.add(boardUI);
 
         gameFrame.setVisible(true);
+    }
+
+    // Method to wait for the opponent's move
+    private void waitForOpponentMove() {
+        new Thread(() -> {
+            try {
+                String response = logic.receiveResponse();
+                String[] move = response.split(",");
+                int opponentRow = Integer.parseInt(move[0]);
+                int opponentCol = Integer.parseInt(move[1]);
+                SwingUtilities.invokeLater(() -> {
+                    boardUI.updateBoard(opponentRow, opponentCol);
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 }

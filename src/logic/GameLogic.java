@@ -126,4 +126,11 @@ public class GameLogic {
     public boolean isCurrentPlayerX() {
         return currentPlayer == 'X';
     }
+
+    // New method to handle opponent's move
+    public void handleOpponentMove(int row, int col) {
+        if (placeMark(row, col)) {
+            changePlayer();
+        }
+    }
 }
