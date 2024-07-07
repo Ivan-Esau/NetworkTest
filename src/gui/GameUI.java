@@ -116,9 +116,14 @@ public class GameUI {
         gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         gameFrame.setSize(300, 300);
 
-        boardUI = new TicTacToeBoard(logic, isServer);
+        boardUI = new TicTacToeBoard(logic, isServer, this); // Pass the GameUI instance to TicTacToeBoard
         gameFrame.add(boardUI);
 
         gameFrame.setVisible(true);
+    }
+
+    // Method to return to the main menu
+    public void returnToMenu() {
+        createAndShowGUI();
     }
 }

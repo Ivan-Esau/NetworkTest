@@ -12,10 +12,12 @@ public class TicTacToeBoard extends JPanel {
     private GameLogic logic;
     private JButton[][] buttons;
     private boolean isServer;
+    private GameUI parentUI; // Reference to the parent UI
 
-    public TicTacToeBoard(GameLogic logic, boolean isServer) {
+    public TicTacToeBoard(GameLogic logic, boolean isServer, GameUI parentUI) {
         this.logic = logic;
         this.isServer = isServer;
+        this.parentUI = parentUI; // Initialize the parent UI
         setLayout(new GridLayout(3, 3));
         initializeButtons();
         if (!isServer) {
@@ -93,6 +95,14 @@ public class TicTacToeBoard extends JPanel {
     private void waitForOpponentMove() {
         try {
             String response = logic.receiveResponse();
+            if (response == null) {
+                System.out.println("Connection lost or server closed. Returning to menu...");
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(null, "Connection lost. Returning to menu.");
+                    parentUI.returnToMenu(); // Return to menu using parent UI
+                });
+                return;
+            }
             System.out.println("Received move: " + response);
             if (response.equals("START_GAME")) {
                 System.out.println("Game started on client side");
@@ -108,7 +118,11 @@ public class TicTacToeBoard extends JPanel {
                 });
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error receiving move: " + e.getMessage());
+            SwingUtilities.invokeLater(() -> {
+                JOptionPane.showMessageDialog(null, "Connection error. Returning to menu.");
+                parentUI.returnToMenu(); // Return to menu using parent UI
+            });
         }
     }
 
