@@ -90,7 +90,7 @@ public class GameLogic {
 
     private boolean checkRows() {
         for (int i = 0; i < 3; i++) {
-            if (checkRowCol(board[i][0], board[i][1], board[i][2]) == true) {
+            if (checkRowCol(board[i][0], board[i][1], board[i][2])) {
                 return true;
             }
         }
@@ -99,7 +99,7 @@ public class GameLogic {
 
     private boolean checkColumns() {
         for (int i = 0; i < 3; i++) {
-            if (checkRowCol(board[0][i], board[1][i], board[2][i]) == true) {
+            if (checkRowCol(board[0][i], board[1][i], board[2][i])) {
                 return true;
             }
         }
@@ -107,7 +107,7 @@ public class GameLogic {
     }
 
     private boolean checkDiagonals() {
-        return ((checkRowCol(board[0][0], board[1][1], board[2][2]) == true) || (checkRowCol(board[0][2], board[1][1], board[2][0]) == true));
+        return ((checkRowCol(board[0][0], board[1][1], board[2][2])) || (checkRowCol(board[0][2], board[1][1], board[2][0])));
     }
 
     private boolean checkRowCol(char c1, char c2, char c3) {
