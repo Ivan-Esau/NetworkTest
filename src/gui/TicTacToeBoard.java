@@ -52,10 +52,10 @@ public class TicTacToeBoard extends JPanel {
                                     logic.changePlayer();
                                     try {
                                         logic.sendRequest(row + "," + col);
-                                        logic.sendResponse("TURN_CHANGE"); // Inform the opponent about the turn change
                                         System.out.println("Sent move: " + row + "," + col);
                                         disableBoard();
                                         new Thread(createWaitForOpponentMoveRunnable()).start(); // Wait for the opponent's move in a new thread
+                                        new Thread(createWaitForTurnChangeRunnable()).start(); // Wait for the opponent's turn change in a new thread
                                     } catch (IOException ioException) {
                                         ioException.printStackTrace();
                                     }
@@ -111,8 +111,6 @@ public class TicTacToeBoard extends JPanel {
                     System.out.println("Received move: " + response);
                     if (response.equals("START_GAME")) {
                         SwingUtilities.invokeLater(this::enableBoard);
-                    } else if (response.equals("TURN_CHANGE")) {
-                        SwingUtilities.invokeLater(this::enableBoard);
                     } else {
                         String[] move = response.split(",");
                         int opponentRow = Integer.parseInt(move[0]);
@@ -127,6 +125,36 @@ public class TicTacToeBoard extends JPanel {
                 }
             } catch (IOException e) {
                 System.out.println("Error receiving move: " + e.getMessage());
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(null, "Connection error. Returning to menu.");
+                    parentUI.returnToMenu(); // Return to menu using parent UI
+                });
+            }
+        };
+    }
+
+    // Method to wait for the turn change
+    private Runnable createWaitForTurnChangeRunnable() {
+        return () -> {
+            try {
+                while (true) {
+                    String response = logic.receiveResponse();
+                    if (response == null) {
+                        System.out.println("Connection lost or server closed. Returning to menu...");
+                        SwingUtilities.invokeLater(() -> {
+                            JOptionPane.showMessageDialog(null, "Connection lost. Returning to menu.");
+                            parentUI.returnToMenu(); // Return to menu using parent UI
+                        });
+                        return;
+                    }
+                    System.out.println("Received turn change: " + response);
+                    if (response.equals("TURN_CHANGE")) {
+                        SwingUtilities.invokeLater(this::enableBoard);
+                        break; // Exit loop after handling the turn change
+                    }
+                }
+            } catch (IOException e) {
+                System.out.println("Error receiving turn change: " + e.getMessage());
                 SwingUtilities.invokeLater(() -> {
                     JOptionPane.showMessageDialog(null, "Connection error. Returning to menu.");
                     parentUI.returnToMenu(); // Return to menu using parent UI
